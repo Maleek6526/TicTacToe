@@ -1,68 +1,66 @@
+package Game;
+
 import java.util.Random;
 import java.util.Scanner;
 
-public class Main {
-    private static char[][] gameBoard;
-    private static final Scanner scanner = new Scanner(System.in);
-    private static int playerScore = 0;
-    private static int cpuScore = 0;
+public class App {
+    private char[][] gameBoard;
+    private int playerScore;
+    private int cpuScore;
+    private final Scanner scanner;
 
-    public static void main(String[] args) {
+    public App() {
+        this.playerScore = 0;
+        this.cpuScore = 0;
+        this.scanner = new Scanner(System.in);
+        resetBoard();
+    }
+
+    public void play() {
         while (true) {
             resetBoard();
             printGameBoard();
 
             while (true) {
                 int playerResponse = promptForPlacement();
+                if (!placeMarker(playerResponse, 'X')) continue;
 
-                if (!placeMarker(playerResponse, "player")) {
-                    continue;
-                }
-
-                if (checkWin("player")) {
+                if (checkWin('X')) {
                     playerScore++;
                     printGameBoard();
-                    print("Player wins!");
+                    System.out.println("Player wins!");
                     break;
                 }
 
                 if (isBoardFull()) {
                     printGameBoard();
-                    print("It's a tie!");
+                    System.out.println("It's a tie!");
                     break;
                 }
 
                 int computerResponse = getComputerMove();
-
-                if (checkWin("CPU")) {
+                if (checkWin('O')) {
                     cpuScore++;
                     printGameBoard();
-                    print("CPU wins!");
+                    System.out.println("CPU wins!");
                     break;
                 }
-
                 printGameBoard();
-
-                if (isBoardFull()) {
-                    print("It's a tie!");
-                    break;
-                }
             }
 
-            print("Scoreboard:");
-            print("Player: " + playerScore + " | CPU: " + cpuScore);
+            System.out.println("Scoreboard:");
+            System.out.println("Player: " + playerScore + " | CPU: " + cpuScore);
 
             if (!promptForPlayAgain()) {
-                print("Thanks for playing! Here is the final score:");
-                print("Final Score:");
-                print("Player: " + playerScore + " | CPU: " + cpuScore);
-                print("Goodbye!");
+                System.out.println("Thanks for playing! Final Score:");
+                System.out.println("Player: " + playerScore + " | CPU: " + cpuScore);
+                System.out.println("Goodbye!");
                 break;
             }
         }
     }
 
-    private static void resetBoard() {
+    public void resetBoard() {
         gameBoard = new char[][] {
                 {' ', '|', ' ', '|', ' '},
                 {'-', '+', '-', '+', '-'},
@@ -72,15 +70,13 @@ public class Main {
         };
     }
 
-    private static void printGameBoard() {
+    public void printGameBoard() {
         for (char[] row : gameBoard) {
             System.out.println(row);
         }
     }
 
-    private static boolean placeMarker(int position, String player) {
-        char marker = (player.equals("player")) ? 'X' : 'O';
-
+    public boolean placeMarker(int position, char marker) {
         switch (position) {
             case 1 -> { if (gameBoard[0][0] == ' ') { gameBoard[0][0] = marker; return true; } }
             case 2 -> { if (gameBoard[0][2] == ' ') { gameBoard[0][2] = marker; return true; } }
@@ -91,48 +87,47 @@ public class Main {
             case 7 -> { if (gameBoard[4][0] == ' ') { gameBoard[4][0] = marker; return true; } }
             case 8 -> { if (gameBoard[4][2] == ' ') { gameBoard[4][2] = marker; return true; } }
             case 9 -> { if (gameBoard[4][4] == ' ') { gameBoard[4][4] = marker; return true; } }
-            default -> print("Invalid Input");
+            default -> System.out.println("Invalid Input");
         }
         return false;
     }
 
-    private static int promptForPlacement() {
+    private int promptForPlacement() {
         int playerResponse;
         while (true) {
-            playerResponse = prompt("Enter your placement (1 - 9): ");
-            if (playerResponse >= 1 && playerResponse <= 9) {
-                return playerResponse;
+            System.out.print("Enter your placement (1 - 9): ");
+            if (scanner.hasNextInt()) {
+                playerResponse = scanner.nextInt();
+                if (playerResponse >= 1 && playerResponse <= 9) {
+                    return playerResponse;
+                }
             } else {
-                print("Invalid input. Please enter a number between 1 and 9.");
+                scanner.next(); // Clear invalid input
             }
+            System.out.println("Invalid input. Please enter a number between 1 and 9.");
         }
     }
 
-    private static boolean promptForPlayAgain() {
-        String response;
+    private boolean promptForPlayAgain() {
         while (true) {
-            print("Do you want to play again? (yes/no): ");
-            response = scanner.next().toLowerCase();
-            if (response.equals("yes") || response.equals("no")) {
-                return response.equals("yes");
-            } else {
-                print("Invalid input. Please enter 'yes' or 'no'.");
-            }
+            System.out.print("Do you want to play again? (yes/no): ");
+            String response = scanner.next().toLowerCase();
+            if (response.equals("yes")) return true;
+            if (response.equals("no")) return false;
+            System.out.println("Invalid input. Please enter 'yes' or 'no'.");
         }
     }
 
-    private static int getComputerMove() {
+    public int getComputerMove() {
         Random random = new Random();
         int move;
         do {
             move = random.nextInt(9) + 1;
-        } while (!placeMarker(move, "CPU"));
+        } while (!placeMarker(move, 'O'));
         return move;
     }
 
-    private static boolean checkWin(String player) {
-        char symbol = player.equals("player") ? 'X' : 'O';
-
+    public boolean checkWin(char symbol) {
         return (gameBoard[0][0] == symbol && gameBoard[0][2] == symbol && gameBoard[0][4] == symbol) ||
                 (gameBoard[2][0] == symbol && gameBoard[2][2] == symbol && gameBoard[2][4] == symbol) ||
                 (gameBoard[4][0] == symbol && gameBoard[4][2] == symbol && gameBoard[4][4] == symbol) ||
@@ -143,23 +138,14 @@ public class Main {
                 (gameBoard[0][4] == symbol && gameBoard[2][2] == symbol && gameBoard[4][0] == symbol);
     }
 
-    private static boolean isBoardFull() {
-        for (int index = 0; index < 5; index += 2) {
-            for (int count = 0; count < 5; count += 2) {
-                if (gameBoard[index][count] == ' ') {
+    public boolean isBoardFull() {
+        for (int row = 0; row < 5; row += 2) {
+            for (int col = 0; col < 5; col += 2) {
+                if (gameBoard[row][col] == ' ') {
                     return false;
                 }
             }
         }
         return true;
-    }
-
-    private static void print(String message) {
-        System.out.println(message);
-    }
-
-    private static int prompt(String message) {
-        print(message);
-        return scanner.nextInt();
     }
 }
