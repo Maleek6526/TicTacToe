@@ -39,7 +39,7 @@ public class App {
                 }
 
                 int computerResponse = getComputerMove();
-                if (checkWin('O')) {
+                if (checkWin('0')) {
                     cpuScore++;
                     printGameBoard();
                     System.out.println("CPU wins!");
@@ -96,25 +96,32 @@ public class App {
         int playerResponse;
         while (true) {
             System.out.print("Enter your placement (1 - 9): ");
-            if (scanner.hasNextInt()) {
+            try {
                 playerResponse = scanner.nextInt();
                 if (playerResponse >= 1 && playerResponse <= 9) {
                     return playerResponse;
+                } else {
+                    System.out.println("Invalid input. Please enter a number between 1 and 9.");
                 }
-            } else {
-                scanner.next(); // Clear invalid input
+            } catch (Exception e) {
+                System.out.println("Invalid input. Please enter a number between 1 and 9.");
+                scanner.nextLine();
             }
-            System.out.println("Invalid input. Please enter a number between 1 and 9.");
         }
     }
 
     private boolean promptForPlayAgain() {
         while (true) {
             System.out.print("Do you want to play again? (yes/no): ");
-            String response = scanner.next().toLowerCase();
-            if (response.equals("yes")) return true;
-            if (response.equals("no")) return false;
-            System.out.println("Invalid input. Please enter 'yes' or 'no'.");
+            try {
+                String response = scanner.next().toLowerCase();
+                if (response.equals("yes")) return true;
+                if (response.equals("no")) return false;
+                System.out.println("Invalid input. Please enter 'yes' or 'no'.");
+            } catch (Exception e) {
+                System.out.println("Invalid input. Please enter 'yes' or 'no'.");
+                scanner.nextLine();
+            }
         }
     }
 
